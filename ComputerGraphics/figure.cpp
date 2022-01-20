@@ -28,28 +28,23 @@ void Figure::paint(QPainter& painter, QVector<Figure>& triangles)
     painter.setPen(QPen(collor_, 4, Qt::SolidLine, Qt::FlatCap));
     painter.setBrush(QBrush(collor_, Qt::SolidPattern));
     lines_.clear();
-    for(int i = 0; i < points_.length(); i++)
-    {
-            painter.drawPoint(points_[i]);
-            if(i > 0)
-            {
-                 lines_.push_back(qMakePair(points_[i-1], points_[i]));
-            }
-
-    }
     if(points_.count()>1)
-        painter.drawLine(points_.first(), points_.back());
-
-//    QVector<QPair<QPoint, QPoint>> new_lines;
-//    if (points_.length()>2)
-//           for (auto &i: triangles) {
-//               QVector<QPair<QPoint, QPoint>> new_lines;
-//               for (auto &j: lines) {
-//                   new_lines += cyrus_beck(j, i);
-//               }
-//               lines = new_lines;
-//           }
-
+    {
+    for(int i = 0; i < points_.length()-1; i++)
+    {
+            //painter.drawPoint(points_[i]);
+        lines_.push_back(qMakePair(points_[i], points_[i+1]));
+    }
+        lines_.push_back(qMakePair(points_.first(), points_.back()));
+    }
+    if (points_.length()>2)
+           for (auto &i: triangles) {
+               QVector<QPair<QPoint, QPoint>> new_lines;
+               for (auto &j: lines_) {
+                   new_lines += cyrusBeck(j, i);
+               }
+               lines_ = new_lines;
+           }
     for(int i = 0; i < lines_.count();i++)
     {
        painter.drawLine(lines_[i].first, lines_[i].second);
@@ -260,6 +255,57 @@ void Figure::paintTriangles(QPainter& painter)
 {
     for (auto &i: triangulate()) {
             i.paint(painter, collor_);
+    }
+}
+
+QVector<QPair<QPoint, QPoint> > Figure::cyrusBeck(const QPair<QPoint, QPoint> &line, const Figure &shape)
+{
+    auto d = line.first - line.second;
+        QVector<QPoint> normals;
+        auto shapePoints = shape.points_;
+        for (auto i = 0; i < shapePoints.length(); i++) {
+            auto s = shapePoints[(i + 1) % shapePoints.length()];
+            auto e = shapePoints[i];
+            auto x = e.y() - s.y();
+            auto y = s.x() - e.x();
+            normals.append(QPoint(x, y));
+        }
+        double tE = 0;
+        double tL = 1;
+        for (auto i = 0; i < normals.length(); i++) {
+            auto dot_prod = normals[i].x()*d.x() + normals[i].y()*d.y();
+            if (dot_prod != 0){
+                auto diff = shapePoints[i] - line.first;
+                auto t = (normals[i].x()*diff.x() + normals[i].y()*diff.y()) / (1.0 * -1 * dot_prod);
+                if (dot_prod < 0) tE = qMax(tE, t);
+                else tL = qMin(tL, t);
+            } else
+            {
+                auto a = shapePoints[i];
+                auto b = shapePoints[(i + 1) % shapePoints.length()];
+                auto c = line.first;
+                if ((b.x() - a.x()) * (c.y() - a.y()) - (b.y() - a.y()) * (c.x() - a.x()) < 0) {
+                    tE = 1;
+                    tL = -1;
+                }
+            }
+        }
+
+        if (tE > tL)
+            return QVector<QPair<QPoint, QPoint>>({line});
+
+        auto p1 = line.first + (line.second - line.first) * tE;
+        auto p2 = line.first + (line.second - line.first) * tL;
+
+        if (tE == 0 && tL == 1) {
+            return QVector<QPair<QPoint, QPoint>>();
+        }
+        if (tE == 0){
+            return QVector<QPair<QPoint, QPoint>>({qMakePair(p2, line.second)});
+        } else if (tL == 1) {
+            return QVector<QPair<QPoint, QPoint>>({qMakePair(line.first, p1)});
+        } else {
+            return QVector<QPair<QPoint, QPoint>>({qMakePair(line.first, p1), qMakePair(p2, line.second)});
         }
 }
 

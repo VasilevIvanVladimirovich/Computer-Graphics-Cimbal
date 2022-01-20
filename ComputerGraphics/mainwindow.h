@@ -40,15 +40,17 @@ private slots:
     void on_btnMoveFigure_clicked();
     void on_btnRotateFigure_clicked();
     void on_btnScaleFigure_clicked();
+    void on_btnTabulationFigure_clicked();
 
 private:
-    QString statusModeView[5] = {"View", "New", "Move", "Rotate","Scale"};
+    QString statusModeView[6] = {"View", "New", "Move", "Rotate","Scale","Tabulation"};
     QString statusMode;
 
     QPushButton* btnCreateFigure;
     QPushButton* btnMoveFigure;
     QPushButton* btnRotateFigure;
     QPushButton* btnScaleFigure;
+    QPushButton* btnTabulationFigure;
 
     QStatusBar* statusBar;
 

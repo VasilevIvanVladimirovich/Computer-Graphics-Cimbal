@@ -41,6 +41,7 @@ public:
     void sortPointsClock();
     static bool compare_points_of_center(const QPoint &p1, const QPoint &p2, const QPoint &center);
     void paintTriangles(QPainter& painter);
+    static QVector<QPair<QPoint, QPoint>> cyrusBeck(const QPair<QPoint, QPoint> &line, const Figure &shape);
 private:
     QPoint center_;
     QVector<QPoint> points_;

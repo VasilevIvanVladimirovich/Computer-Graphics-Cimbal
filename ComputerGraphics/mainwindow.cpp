@@ -32,6 +32,10 @@ MainWindow::MainWindow(QMainWindow* parent) :QMainWindow(parent)
     connect(btnScaleFigure, SIGNAL(clicked()), this, SLOT(on_btnScaleFigure_clicked()));
     layout_menu->addWidget(btnScaleFigure);
 
+    btnTabulationFigure = new QPushButton("Tabulation figure");
+    connect(btnTabulationFigure, SIGNAL(clicked()), this, SLOT(on_btnTabulationFigure_clicked()));
+    layout_menu->addWidget(btnTabulationFigure);
+
     layout_main->addLayout(layout_menu);
     layout_main->addItem(new QSpacerItem(0,10, QSizePolicy::Expanding, QSizePolicy::Expanding));
     layout_main->addLayout(layout_graph);
@@ -63,8 +67,9 @@ void MainWindow::paintEvent(QPaintEvent* event)
     for(int i = 0; i < vectorFigure_.length(); i++)
     {
         vectorFigure_[i].paint(painter, triangles);
-        vectorFigure_[i].paintTriangles(painter);
-        triangles += vectorFigure_[i].triangulate();
+        if(vectorFigure_[i].getCountPoint()>3)
+            triangles += vectorFigure_[i].triangulate();
+        //vectorFigure_[i].paintTriangles(painter);
     }
 
 }
@@ -122,6 +127,21 @@ void MainWindow::mousePressEvent(QMouseEvent* event)
                isSelection_=true;
                selectFugure_ = &vectorFigure_[i];
                selectPoint_ = event->pos();
+            }
+        }
+    }
+    if(statusMode == statusModeView[5]) //Tabulation
+    {
+        if(event->button() & Qt::LeftButton)
+        {
+            for(int i = 0; i < vectorFigure_.count();i++)
+            {
+                if(vectorFigure_[i].isFigureOnCoordinates(event->pos().x(),event->pos().y()))
+                {
+                    Figure temp = vectorFigure_[i];
+                    vectorFigure_.remove(i);
+                    vectorFigure_.push_front(temp);
+                }
             }
         }
     }
@@ -211,6 +231,12 @@ void MainWindow::on_btnRotateFigure_clicked()
 void MainWindow::on_btnScaleFigure_clicked()
 {
     statusMode= statusModeView[4];
+    label_status->setText(statusMode);
+}
+
+void MainWindow::on_btnTabulationFigure_clicked()
+{
+    statusMode= statusModeView[5];
     label_status->setText(statusMode);
 }
 
