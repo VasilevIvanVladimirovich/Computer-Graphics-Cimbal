@@ -179,8 +179,11 @@ void Figure::setAngle(QPoint start, QPoint current)
 
 void Figure::setScale(int posX,int posY, QPoint& selectedPoint)
 {
-    scale_ = (qSqrt(qPow(center_.x() - posX, 2) + qPow(center_.y() - posY, 2))) /
-             (qSqrt(qPow(center_.x() - selectedPoint.x(), 2) + qPow(center_.y() - selectedPoint.y(), 2)));
+    scale_ = qSqrt(qPow(center_.x() - posX, 2) + qPow(center_.y() - posY, 2)) /
+             qSqrt(qPow(center_.x() - selectedPoint.x(), 2) + qPow(center_.y() - selectedPoint.y(), 2));
+    qDebug()<<center_;
+
+
 }
 
 void Figure::scale()
@@ -188,8 +191,10 @@ void Figure::scale()
     findCenter();
     for (int i = 0; i< points_.count();i++)
     {
+        qDebug()<<"before "<<points_[i].x() << " "<<points_[i].y();
         points_[i].rx() = (points_[i].x() - center_.x()) * scale_ + center_.x();
         points_[i].ry() = (points_[i].y() - center_.y()) * scale_ + center_.y();
+        qDebug()<<"after "<<points_[i].x() << " "<<points_[i].y();
     }
     qDebug()<<scale_;
 }

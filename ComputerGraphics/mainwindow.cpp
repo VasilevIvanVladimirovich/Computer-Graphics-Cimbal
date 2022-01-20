@@ -35,6 +35,7 @@ MainWindow::MainWindow(QMainWindow* parent) :QMainWindow(parent)
     btnTabulationFigure = new QPushButton("Tabulation figure");
     connect(btnTabulationFigure, SIGNAL(clicked()), this, SLOT(on_btnTabulationFigure_clicked()));
     layout_menu->addWidget(btnTabulationFigure);
+    layout_menu->addItem(new QSpacerItem(0,0, QSizePolicy::Expanding));
 
     layout_main->addLayout(layout_menu);
     layout_main->addItem(new QSpacerItem(0,10, QSizePolicy::Expanding, QSizePolicy::Expanding));
@@ -67,7 +68,7 @@ void MainWindow::paintEvent(QPaintEvent* event)
     for(int i = 0; i < vectorFigure_.length(); i++)
     {
         vectorFigure_[i].paint(painter, triangles);
-        if(vectorFigure_[i].getCountPoint()>3)
+        if(vectorFigure_[i].getCountPoint()>2)
             triangles += vectorFigure_[i].triangulate();
         //vectorFigure_[i].paintTriangles(painter);
     }
@@ -76,11 +77,10 @@ void MainWindow::paintEvent(QPaintEvent* event)
 
 void MainWindow::mousePressEvent(QMouseEvent* event)
 {
-    if(statusMode == statusModeView[1])
+    if(statusMode == statusModeView[1]) //create
     {
         if(event->button() & Qt::LeftButton)
         {
-
              vectorFigure_.back().add_point(event->pos().x(), event->pos().y());
         }
         if(event->button() & Qt::RightButton)
@@ -143,6 +143,11 @@ void MainWindow::mousePressEvent(QMouseEvent* event)
                     vectorFigure_.push_front(temp);
                 }
             }
+        }
+        if(event->button() & Qt::RightButton)
+        {
+            statusMode = statusModeView[0];
+            label_status->setText(statusMode);
         }
     }
     repaint();
