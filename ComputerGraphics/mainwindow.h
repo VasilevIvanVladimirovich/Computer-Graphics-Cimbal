@@ -2,20 +2,67 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPaintEvent>
+#include <QPainter>
+#include <QPoint>
+#include <QVector>
+#include <QColor>
+#include <QRandomGenerator>
+#include <QDebug>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QSpacerItem>
+#include <QStatusBar>
+#include <QLabel>
+#include "figure.h"
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(QMainWindow* parent = 0);
     ~MainWindow();
 
+    void createFigure();
+
+    bool isFigureOnCoordinates(int x, int y);
+
+protected:
+    void paintEvent(QPaintEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+
+private slots:
+    void on_btnCreateFigure_clicked();
+    void on_btnMoveFigure_clicked();
+    void on_btnRotateFigure_clicked();
+    void on_btnScaleFigure_clicked();
+
 private:
-    Ui::MainWindow *ui;
+    QString statusModeView[5] = {"View", "New", "Move", "Rotate","Scale"};
+    QString statusMode;
+
+    QPushButton* btnCreateFigure;
+    QPushButton* btnMoveFigure;
+    QPushButton* btnRotateFigure;
+    QPushButton* btnScaleFigure;
+
+    QStatusBar* statusBar;
+
+    QLabel* label_status;
+
+    QVBoxLayout* layout_main;
+    QHBoxLayout* layout_menu;
+    QHBoxLayout* layout_graph;
+
+    QVector<Figure> vectorFigure_;
+
+    Figure *selectFugure_;
+    QPoint selectPoint_;
+    bool isSelection_=false;
 };
+
 #endif // MAINWINDOW_H
