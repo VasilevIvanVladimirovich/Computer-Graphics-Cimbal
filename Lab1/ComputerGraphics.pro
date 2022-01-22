@@ -17,8 +17,7 @@ HEADERS += \
     figure.h \
     mainwindow.h
 
-FORMS += \
-    form.ui
+FORMS +=
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

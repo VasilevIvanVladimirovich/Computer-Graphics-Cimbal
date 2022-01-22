@@ -72,7 +72,6 @@ void MainWindow::paintEvent(QPaintEvent* event)
             triangles += vectorFigure_[i].triangulate();
         //vectorFigure_[i].paintTriangles(painter);
     }
-
 }
 
 void MainWindow::mousePressEvent(QMouseEvent* event)
