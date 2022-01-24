@@ -16,6 +16,9 @@
 #include <QSpacerItem>
 #include <QStatusBar>
 #include <QLabel>
+#include <QSlider>
+#include <QTimer>
+#include <QRadioButton>
 #include "circle.h"
 
 class MainWindow : public QMainWindow
@@ -37,25 +40,44 @@ protected:
 private slots:
     void on_btnCreateCircle_clicked();
     void on_btnMoveCircle_clicked();
+    void sliderCollor_valueChanged(int);
+    void on_btnGoCircle_clicked();
+    void on_btnStopCircle_clicked();
+    void on_isAdditivMixing_clicked();
+    void on_isAverageMixing_clicked();
+    void on_isGammaMixing_clicked();
 private:
-    QString statusModeView[2] = {"View", "Move"};
+    QString statusModeView[3] = {"View", "Move","Movement"};
     QString statusMode;
 
     QVBoxLayout* layout_main;
     QHBoxLayout* layout_menu;
     QHBoxLayout* layout_graph;
 
+    QSlider* sliderCollor;
+
     QPushButton* btnCreateCircle;
     QPushButton* btnMoveCircle;
+    QPushButton* btnGoCircle;
+    QPushButton* btnStopCircle;
+
+    QRadioButton* isAdditivMixing;
+    QRadioButton* isAverageMixing;
+    QRadioButton* isGammaMixing;
 
     QLabel* label_status;
+    QLabel* label_slider;
 
     QStatusBar* statusBar;
 
     QVector<Circle> vectorCircle_;
 
+    QTimer *timer_animation;
+
     Circle* selectCircle_;
     QPoint selectPoint_;
     bool isSelection_=false;
+
+    int paintMode_ = 0;
 };
 #endif // MAINWINDOW_H

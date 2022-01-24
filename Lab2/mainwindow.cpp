@@ -17,6 +17,47 @@ MainWindow::MainWindow(QWidget *parent)
      connect(btnMoveCircle, SIGNAL(clicked()), this, SLOT(on_btnMoveCircle_clicked()));
      layout_menu->addWidget(btnMoveCircle);
 
+     btnGoCircle = new QPushButton("Go Circle");
+     connect(btnGoCircle, SIGNAL(clicked()), this, SLOT(on_btnGoCircle_clicked()));
+     layout_menu->addWidget(btnGoCircle);
+     btnGoCircle->hide();
+
+     btnStopCircle = new QPushButton("Stop Circle");
+     connect(btnStopCircle, SIGNAL(clicked()), this, SLOT(on_btnStopCircle_clicked()));
+     layout_menu->addWidget(btnStopCircle);
+     btnStopCircle->hide();
+
+     isAdditivMixing = new QRadioButton("Additiv");
+     layout_menu->addWidget(isAdditivMixing);
+     isAdditivMixing->setChecked(true);
+     connect(isAdditivMixing, SIGNAL(clicked()), this, SLOT(on_isAdditivMixing_clicked()));
+
+     isAverageMixing = new QRadioButton("Average");
+     layout_menu->addWidget(isAverageMixing);
+     connect(isAverageMixing, SIGNAL(clicked()), this, SLOT(on_isAverageMixing_clicked()));
+
+     isGammaMixing = new QRadioButton("Gamma");
+     layout_menu->addWidget(isGammaMixing);
+     connect(isGammaMixing, SIGNAL(clicked()), this, SLOT(on_isGammaMixing_clicked()));
+
+     sliderCollor = new QSlider(Qt::Horizontal,this);
+     sliderCollor->setMaximum(4000);
+     sliderCollor->setMinimum(250);
+     sliderCollor->setValue(1000);
+     layout_menu->addWidget(sliderCollor);
+
+     label_slider = new QLabel();
+     label_slider->setText(QString::number(sliderCollor->value()));
+     layout_menu->addWidget(label_slider);
+
+     sliderCollor->hide();
+     label_slider->hide();
+
+     connect(sliderCollor, &QSlider::valueChanged, label_slider,
+       static_cast<void (QLabel::*)(double)>(&QLabel::setNum));
+
+     connect(sliderCollor, SIGNAL(valueChanged(int)), this, SLOT(sliderCollor_valueChanged(int)));
+
      layout_menu->addItem(new QSpacerItem(0,0, QSizePolicy::Expanding));
 
      QWidget *centralWidget = new QWidget;
@@ -27,7 +68,6 @@ MainWindow::MainWindow(QWidget *parent)
      statusMode = statusModeView[0];
      statusBar->addPermanentWidget(label_status);
 
-
      layout_main->addLayout(layout_menu);
      layout_main->addItem(new QSpacerItem(0,10, QSizePolicy::Expanding, QSizePolicy::Expanding));
      layout_main->addLayout(layout_graph);
@@ -37,12 +77,19 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+
 }
 
 void MainWindow::paintEvent(QPaintEvent *event)
 {
      Q_UNUSED(event);
      QPainter painter(this);
+     painter.setPen(QPen(Qt::black, 4, Qt::SolidLine, Qt::FlatCap));
+//     painter.drawRect(50,50,1100,700);
+     if(paintMode_ == 0)
+     {
+         paintMode_ = 1;
+     }
 
      for(int i = 0; i < vectorCircle_.count();i++)
      {
@@ -52,14 +99,15 @@ void MainWindow::paintEvent(QPaintEvent *event)
             {
                 continue;
             }
-          vectorCircle_[i].setOtherCircle(vectorCircle_[j].getCenter(),
-                                          vectorCircle_[j].getDiametr(),
-                                          vectorCircle_[j].getCollor());
+            vectorCircle_[i].setOtherCircle(vectorCircle_[j].getCenter(),
+                                            vectorCircle_[j].getDiametr(),
+                                            vectorCircle_[j].getCollor());
          }
      }
      for(int i = 0; i < vectorCircle_.count(); i++)
      {
-         vectorCircle_[i].paint(painter);
+//         vectorCircle_[i].setPlate(QPoint(50,50),QPoint(1100+50,700+50));
+         vectorCircle_[i].paint(painter, paintMode_,double(sliderCollor->value())/1000);
          vectorCircle_[i].clearOtherCircle();
      }
 }
@@ -122,19 +170,19 @@ bool MainWindow::isFigureOnCoordinates(int x, int y)
 void MainWindow::on_btnCreateCircle_clicked()
 {
     QPoint point;
-    point.rx() = 150;
-    point.ry() = 150;
-    Circle circleRed(Qt::red, point, 250);
+    point.rx() = 350;
+    point.ry() = 350;
+    Circle circleRed(Qt::red, point, 300);
     vectorCircle_.push_back(circleRed);
 
     point.rx() = 450;
-    point.ry() = 350;
-    Circle circleGreen(Qt::green, point, 250);
+    point.ry() = 250;
+    Circle circleGreen(Qt::green, point, 300);
     vectorCircle_.push_back(circleGreen);
 
-    point.rx() = 200;
-    point.ry() = 500;
-    Circle circleBlue(Qt::blue, point, 250);
+    point.rx() = 550;
+    point.ry() = 350;
+    Circle circleBlue(Qt::blue, point, 300);
     vectorCircle_.push_back(circleBlue);
 
     repaint();
@@ -144,5 +192,51 @@ void MainWindow::on_btnMoveCircle_clicked()
 {
     statusMode= statusModeView[1];
     label_status->setText(statusMode);
+}
+
+void MainWindow::sliderCollor_valueChanged(int)
+{
+    label_slider->setText(QString::number(double(sliderCollor->value())/1000,'f',2));
+    repaint();
+}
+
+void MainWindow::on_btnGoCircle_clicked()
+{
+    statusMode= statusModeView[2];
+    label_status->setText(statusMode);
+    btnGoCircle->hide();
+    btnStopCircle->show();
+}
+
+void MainWindow::on_btnStopCircle_clicked()
+{
+    statusMode= statusModeView[0];
+    label_status->setText(statusMode);
+    btnStopCircle->hide();
+    btnGoCircle->show();
+}
+
+void MainWindow::on_isAdditivMixing_clicked()
+{
+    paintMode_ = 1;
+    sliderCollor->hide();
+    sliderCollor->hide();
+    repaint();
+}
+
+void MainWindow::on_isAverageMixing_clicked()
+{
+    paintMode_ = 2;
+    sliderCollor->hide();
+    label_slider->hide();
+    repaint();
+}
+
+void MainWindow::on_isGammaMixing_clicked()
+{
+    paintMode_ = 3;
+    sliderCollor->show();
+    label_slider->show();
+    repaint();
 }
 
