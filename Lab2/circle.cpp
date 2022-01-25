@@ -1,15 +1,24 @@
 #include "circle.h"
 
-Circle::Circle(QColor collor, QPoint center, qreal diametr)
+Circle::Circle(QColor collor, QPoint center, qreal diametr, QPair<QPoint,QPoint> plate)
 {
     qcollor_ = collor;
     center_ = center;
     diametr_ = diametr;
+    plate_ = plate;
+    speed_ = 8;
+    angle_ = double(QRandomGenerator::global()->generate()%100)/1000 * (M_PI * 2);
+    qDebug()<<angle_;
+    velocityX_ = qCos(angle_) * speed_;
+    velocityY_ = qSin(angle_) * speed_;
 }
 
 Circle::Circle()
 {
-
+    speed_=8;
+    angle_ = QRandomGenerator::global()->generate() * (M_PI * 2);
+    velocityX_ = qCos(angle_) * speed_;
+    velocityY_ = qCos(angle_) * speed_;
 }
 
 bool Circle::isFigureOnCoordinates(int x, int y)
@@ -28,12 +37,25 @@ bool Circle::isFigureOnBorder(int x, int y)
 
 void Circle::move(int x, int y)
 {
-//    if(center_.x() + x - diametr_/2 > plate_.first.x() &&  center_.x() + x + diametr_/2 <  plate_.second.x() &&
-//       center_.y() + y - diametr_/2> plate_.first.y() &&  center_.y() + y + diametr_/2 <  plate_.second.y())
-//    {
         center_.rx() += x;
         center_.ry() += y;
-//    }
+}
+
+void Circle::move()
+{
+    if(center_.x() + diametr_/2 > plate_.second.x()  && velocityX_ > 0 ||
+           center_.x() - diametr_/2 < plate_.first.x() && velocityX_ < 0)
+    {
+        velocityX_ = - velocityX_;
+    }
+    if(center_.y() + diametr_/2 > plate_.second.y()  && velocityY_ > 0 ||
+           center_.y() - diametr_/2 < plate_.first.y() && velocityY_ < 0)
+    {
+        velocityY_ = - velocityY_;
+    }
+
+    center_.rx()+=velocityX_;
+    center_.ry()+=velocityY_;
 }
 
 int Circle::getXOnCoord(int y)
@@ -111,7 +133,6 @@ bool Circle::checkOtherCircle(int x,int y, int paintMode,qreal ingamma)
                 result = true;
             }
         }
-
     }
     if(paintMode == 2||paintMode == 3)
     {

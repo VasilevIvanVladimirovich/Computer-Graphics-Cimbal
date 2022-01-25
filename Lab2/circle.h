@@ -17,12 +17,13 @@
 class Circle
 {
 public:
-    Circle(QColor collor, QPoint center, qreal diametr);
+    Circle(QColor collor, QPoint center, qreal diametr,QPair<QPoint,QPoint> plate);
     Circle();
 
     bool isFigureOnCoordinates(int x, int y);
     bool isFigureOnBorder(int x, int y);
     void move(int x, int y);
+    void move();
     void paint(QPainter &painter,int paintMode,qreal ingamma);
 
     int getXOnCoord(int y);
@@ -45,7 +46,12 @@ private:
     qreal diametr_;
     QColor qcollor_;
 
-//    QPair<QPoint,QPoint> plate_;
+    qreal velocityX_;
+    qreal velocityY_;
+    qreal angle_;
+    qreal speed_;
+
+    QPair<QPoint,QPoint> plate_;
 
     QColor newCollor;
 

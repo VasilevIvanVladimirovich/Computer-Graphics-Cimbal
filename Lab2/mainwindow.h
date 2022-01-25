@@ -46,6 +46,7 @@ private slots:
     void on_isAdditivMixing_clicked();
     void on_isAverageMixing_clicked();
     void on_isGammaMixing_clicked();
+    void updateRepaint();
 private:
     QString statusModeView[3] = {"View", "Move","Movement"};
     QString statusMode;
@@ -69,6 +70,8 @@ private:
     QLabel* label_slider;
 
     QStatusBar* statusBar;
+
+    QTimer* timer_;
 
     QVector<Circle> vectorCircle_;
 

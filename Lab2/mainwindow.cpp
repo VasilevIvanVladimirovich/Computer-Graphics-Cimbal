@@ -20,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
      btnGoCircle = new QPushButton("Go Circle");
      connect(btnGoCircle, SIGNAL(clicked()), this, SLOT(on_btnGoCircle_clicked()));
      layout_menu->addWidget(btnGoCircle);
-     btnGoCircle->hide();
 
      btnStopCircle = new QPushButton("Stop Circle");
      connect(btnStopCircle, SIGNAL(clicked()), this, SLOT(on_btnStopCircle_clicked()));
@@ -85,7 +84,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
      Q_UNUSED(event);
      QPainter painter(this);
      painter.setPen(QPen(Qt::black, 4, Qt::SolidLine, Qt::FlatCap));
-//     painter.drawRect(50,50,1100,700);
+     painter.drawRect(50,50,1100,700);
      if(paintMode_ == 0)
      {
          paintMode_ = 1;
@@ -106,7 +105,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
      }
      for(int i = 0; i < vectorCircle_.count(); i++)
      {
-//         vectorCircle_[i].setPlate(QPoint(50,50),QPoint(1100+50,700+50));
+         //vectorCircle_[i].setPlate(QPoint(50,50),QPoint(1100+50,700+50));
          vectorCircle_[i].paint(painter, paintMode_,double(sliderCollor->value())/1000);
          vectorCircle_[i].clearOtherCircle();
      }
@@ -172,17 +171,17 @@ void MainWindow::on_btnCreateCircle_clicked()
     QPoint point;
     point.rx() = 350;
     point.ry() = 350;
-    Circle circleRed(Qt::red, point, 300);
+    Circle circleRed(Qt::red, point, 300,qMakePair(QPoint(50,50),QPoint(1150,750)));
     vectorCircle_.push_back(circleRed);
 
-    point.rx() = 450;
-    point.ry() = 250;
-    Circle circleGreen(Qt::green, point, 300);
+    point.rx() = 760;
+    point.ry() = 470;
+    Circle circleGreen(Qt::green, point, 300, qMakePair(QPoint(50,50),QPoint(1150,750)));
     vectorCircle_.push_back(circleGreen);
 
     point.rx() = 550;
-    point.ry() = 350;
-    Circle circleBlue(Qt::blue, point, 300);
+    point.ry() = 550;
+    Circle circleBlue(Qt::blue, point, 300, qMakePair(QPoint(50,50),QPoint(1150,750)));
     vectorCircle_.push_back(circleBlue);
 
     repaint();
@@ -202,14 +201,29 @@ void MainWindow::sliderCollor_valueChanged(int)
 
 void MainWindow::on_btnGoCircle_clicked()
 {
+    timer_ = new QTimer(this);
+    timer_->setInterval(40);
+    connect(timer_, SIGNAL(timeout()), this, SLOT(updateRepaint()));
+
     statusMode= statusModeView[2];
     label_status->setText(statusMode);
     btnGoCircle->hide();
     btnStopCircle->show();
+    timer_->start();
+}
+
+void MainWindow::updateRepaint()
+{
+    for(int i = 0; i < vectorCircle_.count();i++){
+        vectorCircle_[i].move();
+    }
+    repaint();
 }
 
 void MainWindow::on_btnStopCircle_clicked()
 {
+    timer_->stop();
+    delete timer_;
     statusMode= statusModeView[0];
     label_status->setText(statusMode);
     btnStopCircle->hide();
@@ -239,4 +253,6 @@ void MainWindow::on_isGammaMixing_clicked()
     label_slider->show();
     repaint();
 }
+
+
 
