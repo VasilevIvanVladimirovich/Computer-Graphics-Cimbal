@@ -38,10 +38,10 @@ void Figure::paint(QPainter& painter, QVector<Figure>& triangles)
         lines_.push_back(qMakePair(points_.first(), points_.back()));
     }
     if (points_.length()>2)
-           for (auto &i: triangles) {
+           for (auto &triangles: triangles) {
                QVector<QPair<QPoint, QPoint>> new_lines;
-               for (auto &j: lines_) {
-                   new_lines += cyrusBeck(j, i);
+               for (auto &lines: lines_) {
+                   new_lines += cyrusBeck(lines, triangles);
                }
                lines_ = new_lines;
            }
@@ -181,9 +181,6 @@ void Figure::setScale(int posX,int posY, QPoint& selectedPoint)
 {
     scale_ = qSqrt(qPow(center_.x() - posX, 2) + qPow(center_.y() - posY, 2)) /
              qSqrt(qPow(center_.x() - selectedPoint.x(), 2) + qPow(center_.y() - selectedPoint.y(), 2));
-    qDebug()<<center_;
-
-
 }
 
 void Figure::scale()
@@ -191,12 +188,9 @@ void Figure::scale()
     findCenter();
     for (int i = 0; i< points_.count();i++)
     {
-        qDebug()<<"before "<<points_[i].x() << " "<<points_[i].y();
         points_[i].rx() = (points_[i].x() - center_.x()) * scale_ + center_.x();
         points_[i].ry() = (points_[i].y() - center_.y()) * scale_ + center_.y();
-        qDebug()<<"after "<<points_[i].x() << " "<<points_[i].y();
     }
-    qDebug()<<scale_;
 }
 
 QVector<Figure> Figure::triangulate()
@@ -266,51 +260,49 @@ void Figure::paintTriangles(QPainter& painter)
 QVector<QPair<QPoint, QPoint> > Figure::cyrusBeck(const QPair<QPoint, QPoint> &line, const Figure &shape)
 {
     auto d = line.first - line.second;
-        QVector<QPoint> normals;
-        auto shapePoints = shape.points_;
-        for (auto i = 0; i < shapePoints.length(); i++) {
-            auto s = shapePoints[(i + 1) % shapePoints.length()];
-            auto e = shapePoints[i];
-            auto x = e.y() - s.y();
-            auto y = s.x() - e.x();
-            normals.append(QPoint(x, y));
-        }
-        double tE = 0;
-        double tL = 1;
-        for (auto i = 0; i < normals.length(); i++) {
-            auto dot_prod = normals[i].x()*d.x() + normals[i].y()*d.y();
-            if (dot_prod != 0){
-                auto diff = shapePoints[i] - line.first;
-                auto t = (normals[i].x()*diff.x() + normals[i].y()*diff.y()) / (1.0 * -1 * dot_prod);
-                if (dot_prod < 0) tE = qMax(tE, t);
-                else tL = qMin(tL, t);
-            } else
-            {
-                auto a = shapePoints[i];
-                auto b = shapePoints[(i + 1) % shapePoints.length()];
-                auto c = line.first;
-                if ((b.x() - a.x()) * (c.y() - a.y()) - (b.y() - a.y()) * (c.x() - a.x()) < 0) {
-                    tE = 1;
-                    tL = -1;
-                }
+    QVector<QPoint> normals;
+    auto shapePoints = shape.points_;
+    for (auto i = 0; i < shapePoints.length(); i++) {
+        auto s = shapePoints[(i + 1) % shapePoints.length()];
+        auto e = shapePoints[i];
+        auto x = e.y() - s.y();
+        auto y = s.x() - e.x();
+        normals.append(QPoint(x, y));
+    }
+    double tE = 0;
+    double tL = 1;
+    for (auto i = 0; i < normals.length(); i++) {
+        auto dot_prod = normals[i].x()*d.x() + normals[i].y()*d.y();
+        if (dot_prod != 0){
+            auto diff = shapePoints[i] - line.first;
+            auto t = (normals[i].x()*diff.x() + normals[i].y()*diff.y()) / (1.0 * -1 * dot_prod);
+            if (dot_prod < 0) tE = qMax(tE, t);
+            else tL = qMin(tL, t);
+        }else{
+            auto a = shapePoints[i];
+            auto b = shapePoints[(i + 1) % shapePoints.length()];
+            auto c = line.first;
+            if ((b.x() - a.x()) * (c.y() - a.y()) - (b.y() - a.y()) * (c.x() - a.x()) < 0) {
+                tE = 1;
+                tL = -1;
             }
         }
+    }
+    if (tE > tL)
+        return QVector<QPair<QPoint, QPoint>>({line});
 
-        if (tE > tL)
-            return QVector<QPair<QPoint, QPoint>>({line});
+    auto p1 = line.first + (line.second - line.first) * tE;
+    auto p2 = line.first + (line.second - line.first) * tL;
 
-        auto p1 = line.first + (line.second - line.first) * tE;
-        auto p2 = line.first + (line.second - line.first) * tL;
-
-        if (tE == 0 && tL == 1) {
-            return QVector<QPair<QPoint, QPoint>>();
-        }
-        if (tE == 0){
-            return QVector<QPair<QPoint, QPoint>>({qMakePair(p2, line.second)});
-        } else if (tL == 1) {
-            return QVector<QPair<QPoint, QPoint>>({qMakePair(line.first, p1)});
-        } else {
-            return QVector<QPair<QPoint, QPoint>>({qMakePair(line.first, p1), qMakePair(p2, line.second)});
-        }
+    if (tE == 0 && tL == 1) {
+        return QVector<QPair<QPoint, QPoint>>();
+    }
+    if (tE == 0){
+        return QVector<QPair<QPoint, QPoint>>({qMakePair(p2, line.second)});
+    } else if (tL == 1) {
+        return QVector<QPair<QPoint, QPoint>>({qMakePair(line.first, p1)});
+    } else {
+        return QVector<QPair<QPoint, QPoint>>({qMakePair(line.first, p1), qMakePair(p2, line.second)});
+    }
 }
 

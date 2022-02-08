@@ -35,6 +35,11 @@ MainWindow::MainWindow(QMainWindow* parent) :QMainWindow(parent)
     btnTabulationFigure = new QPushButton("Tabulation figure");
     connect(btnTabulationFigure, SIGNAL(clicked()), this, SLOT(on_btnTabulationFigure_clicked()));
     layout_menu->addWidget(btnTabulationFigure);
+
+    btnIsTreangle = new QPushButton("Treangulate");
+    connect(btnIsTreangle, SIGNAL(clicked()), this, SLOT(on_btnIsTreangle_clicked()));
+    layout_menu->addWidget(btnIsTreangle);
+
     layout_menu->addItem(new QSpacerItem(0,0, QSizePolicy::Expanding));
 
     layout_main->addLayout(layout_menu);
@@ -69,8 +74,11 @@ void MainWindow::paintEvent(QPaintEvent* event)
     {
         vectorFigure_[i].paint(painter, triangles);
         if(vectorFigure_[i].getCountPoint()>2)
+        {
             triangles += vectorFigure_[i].triangulate();
-        //vectorFigure_[i].paintTriangles(painter);
+            if(isTreangle)
+                vectorFigure_[i].paintTriangles(painter);
+        }
     }
 }
 
@@ -242,6 +250,12 @@ void MainWindow::on_btnTabulationFigure_clicked()
 {
     statusMode= statusModeView[5];
     label_status->setText(statusMode);
+}
+
+void MainWindow::on_btnIsTreangle_clicked()
+{
+    isTreangle = !isTreangle;
+    repaint();
 }
 
 void MainWindow::createFigure()

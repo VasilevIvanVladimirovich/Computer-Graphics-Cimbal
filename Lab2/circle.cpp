@@ -8,7 +8,6 @@ Circle::Circle(QColor collor, QPoint center, qreal diametr, QPair<QPoint,QPoint>
     plate_ = plate;
     speed_ = 8;
     angle_ = double(QRandomGenerator::global()->generate()%100)/1000 * (M_PI * 2);
-    qDebug()<<angle_;
     velocityX_ = qCos(angle_) * speed_;
     velocityY_ = qSin(angle_) * speed_;
 }

@@ -16,6 +16,7 @@
 #include <QSpacerItem>
 #include <QStatusBar>
 #include <QLabel>
+#include <QCheckBox>
 #include "figure.h"
 
 class MainWindow : public QMainWindow
@@ -41,6 +42,7 @@ private slots:
     void on_btnRotateFigure_clicked();
     void on_btnScaleFigure_clicked();
     void on_btnTabulationFigure_clicked();
+    void on_btnIsTreangle_clicked();
 
 private:
     QString statusModeView[6] = {"View", "New", "Move", "Rotate","Scale","Tabulation"};
@@ -51,6 +53,7 @@ private:
     QPushButton* btnRotateFigure;
     QPushButton* btnScaleFigure;
     QPushButton* btnTabulationFigure;
+    QPushButton* btnIsTreangle;
 
     QStatusBar* statusBar;
 
@@ -65,6 +68,7 @@ private:
     Figure *selectFugure_;
     QPoint selectPoint_;
     bool isSelection_=false;
+    bool isTreangle = false;
 };
 
 #endif // MAINWINDOW_H

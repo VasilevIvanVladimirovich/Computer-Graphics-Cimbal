@@ -184,6 +184,11 @@ void MainWindow::on_btnCreateCircle_clicked()
     Circle circleBlue(Qt::blue, point, 300, qMakePair(QPoint(50,50),QPoint(1150,750)));
     vectorCircle_.push_back(circleBlue);
 
+    point.rx() = 650;
+    point.ry() = 550;
+    Circle circlePurple(QColor(128,0,128), point, 300, qMakePair(QPoint(50,50),QPoint(1150,750)));
+    vectorCircle_.push_back(circlePurple);
+
     repaint();
 }
 
